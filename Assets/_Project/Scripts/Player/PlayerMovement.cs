@@ -23,6 +23,7 @@ public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity e
     public Vector3 MoveDirection => moveDirection;
     private CharacterController characterController;
     private PlayerInputHandler playerInputHandler;
+    private CombatTargeting combatTargeting;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake() //awake, antes de start, convencion para obtener referencias 
@@ -30,6 +31,7 @@ public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity e
         characterController = GetComponent<CharacterController>();
         playerAnimator = GetComponent<PlayerAnimator>();
         playerInputHandler = GetComponent<PlayerInputHandler>();
+        combatTargeting = GetComponent<CombatTargeting>();
         
     }
 
@@ -49,11 +51,23 @@ public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity e
     {
         movementInput = playerInputHandler.MoveInput;
         isRunning = playerInputHandler.RunPressed;
-        Vector3 forward = cameraTransform.forward;
+        Vector3 forward ;
+        Vector3 right ;
+        if (combatTargeting.CurrentTarget != null)
+        {
+            forward = transform.forward;
+            right = transform.right;
+        }
+        else
+        {
+            forward = cameraTransform.forward;
+            right = cameraTransform.right;
+        }
+
+
         forward.y = 0f;
         forward.Normalize();
 
-        Vector3 right = cameraTransform.right;
         right.y = 0f;
         right.Normalize();
 
@@ -74,7 +88,13 @@ public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity e
    
     }
     private void Rotate()
-    {
+    {       
+        if(combatTargeting.CurrentTarget != null)
+        {
+            RotateToTarget();
+            return;
+        }
+
         if (MoveDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
@@ -84,6 +104,23 @@ public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity e
                 rotationSpeed * Time.deltaTime
             );
         }
+    }
+    private void RotateToTarget()
+    {
+        Vector3 direction = combatTargeting.CurrentTarget.transform.position - transform.position;
+
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.001f) // if direction == vector3.zero
+            return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            targetRotation,
+            rotationSpeed * Time.deltaTime);
+
     }
     private void Move()
     {

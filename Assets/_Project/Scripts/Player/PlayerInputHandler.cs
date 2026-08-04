@@ -10,6 +10,8 @@ public class PlayerInputHandler : MonoBehaviour
 
     public bool AttackTriggered { get; private set; }
 
+    public bool LockTriggered { get; private set; }
+
     private PlayerInputActions inputActions;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -30,6 +32,8 @@ public class PlayerInputHandler : MonoBehaviour
         RunPressed = inputActions.Player.Run.IsPressed();
         GuardTriggered = inputActions.Player.Guard.WasPressedThisFrame();
         AttackTriggered = inputActions.Player.Attack.WasPressedThisFrame();
+        LockTriggered = inputActions.Player.Lock.WasPressedThisFrame();
+
     }
 
    

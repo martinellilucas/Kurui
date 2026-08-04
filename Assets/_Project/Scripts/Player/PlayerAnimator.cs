@@ -16,14 +16,8 @@ public class PlayerAnimator : MonoBehaviour
     private static readonly int AttackAfterUnsheatheHash =
             Animator.StringToHash("AttackAfterUnsheathe");
 
-    public void Awake()
-    {
-
-    }
-
     public void SetMovementSpeed(float normalizedSpeed)
     {
-
         animator.SetFloat(SpeedHash, normalizedSpeed, 0.1f,
     Time.deltaTime);
     }
@@ -36,6 +30,7 @@ public class PlayerAnimator : MonoBehaviour
     }
     public void PlayUnsheathe(bool value)
     {
+        Debug.Log("PlayUnsheathe()");
         SetAttackAfterUnsheathe(value);
         animator.SetTrigger(UnsheatheTriggerHash);
     }

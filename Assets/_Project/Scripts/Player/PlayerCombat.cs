@@ -31,8 +31,6 @@ public class PlayerCombat : MonoBehaviour
         {
             return false;
         }
-
-        Debug.Log("Try Attack");
             
         isAttacking = true;
         if (isWeaponDrawn)
@@ -64,8 +62,6 @@ public class PlayerCombat : MonoBehaviour
     public void UnsheatheAndAttack()
     {
         isWeaponDrawn = true;
-        Debug.Log("Desenfundo y ataco");
-      
         playerAnimator.PlayUnsheathe(true);
     }
     public void FinishAttack()
@@ -74,15 +70,12 @@ public class PlayerCombat : MonoBehaviour
     }
     public void Unsheathe()
     {
-        isWeaponDrawn = true;
-        Debug.Log("Desenfundo");
-       
+        isWeaponDrawn = true;       
         playerAnimator.PlayUnsheathe(false);
     }
     public void Sheathe()
     {
         isWeaponDrawn = false;
-        Debug.Log("Enfundo");
         playerAnimator.PlaySheathe();
     }
 }

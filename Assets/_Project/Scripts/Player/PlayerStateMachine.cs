@@ -1,3 +1,4 @@
+using Unity.U2D.Physics;
 using UnityEngine;
     public enum PlayerState
     {
@@ -12,15 +13,18 @@ public class PlayerStateMachine : MonoBehaviour
     public PlayerState CurrentState => currentState;
     private PlayerInputHandler inputHandler;
     private PlayerCombat playerCombat;
-    
+    private CombatTargeting combatTargeting;
     private bool guardTriggered;
     private bool attackTriggered;
+    private bool lockTriggered;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         inputHandler = GetComponent<PlayerInputHandler>();
         playerCombat = GetComponent<PlayerCombat>();
+        combatTargeting = GetComponent<CombatTargeting>();
         
     }
 
@@ -29,11 +33,41 @@ public class PlayerStateMachine : MonoBehaviour
     {
         guardTriggered = inputHandler.GuardTriggered;
         attackTriggered = inputHandler.AttackTriggered;
+        lockTriggered = inputHandler.LockTriggered;
+        HandleGlobalInput();
         HandleStateTransitions();
+      
        
     }
-    private void HandleStateTransitions()
+
+    private void HandleGlobalInput()
     {
+        if (!lockTriggered)
+            return;
+    
+        if (combatTargeting.CurrentTarget!= null)
+        {        
+            combatTargeting.ClearTarget();
+            return;
+        }
+      
+        if (!combatTargeting.TryTargetNearestEnemy())
+            return;
+
+        if(currentState == PlayerState.Exploration)
+        {
+            ChangeState(PlayerState.Combat);
+            playerCombat.Unsheathe();
+        }
+        else if(currentState == PlayerState.Guard)
+        {
+            ChangeState(PlayerState.Combat);
+        }
+    
+    }
+    private void HandleStateTransitions()
+    {   
+
         switch (currentState)
         {
             case PlayerState.Exploration:
@@ -77,9 +111,9 @@ public class PlayerStateMachine : MonoBehaviour
         }
         if (attackTriggered)
         {
-        
             playerCombat.TryAttack(PlayerCombat.AttackType.Attack01);
         }
+        
     }
     private void HandleCombatTransitions()
     {
@@ -87,6 +121,10 @@ public class PlayerStateMachine : MonoBehaviour
         {
             ChangeState(PlayerState.Exploration);
             playerCombat.Sheathe();
+        }
+        if (attackTriggered)
+        {
+            playerCombat.TryAttack(PlayerCombat.AttackType.Attack01);
         }
     }
     private void ChangeState(PlayerState newState)

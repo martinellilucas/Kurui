@@ -12,21 +12,11 @@ public class CombatTargeting : MonoBehaviour
 
     [SerializeField]
     private LayerMask targetLayer;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-
-    {
-
-        TryTargetNearestEnemy();
   
+    private void Update()
+    {
+        ValidateTarget();
     }
-
     public bool TryTargetNearestEnemy()
     {
         CombatTarget target;
@@ -48,7 +38,7 @@ public class CombatTargeting : MonoBehaviour
 
         foreach(Collider collider in colliders)
         {
-            target = collider.GetComponent<CombatTarget>(); // collider es un objeto de unity entonces usamos getcomponent
+            target = collider.GetComponentInParent<CombatTarget>(); // collider es un objeto de unity entonces usamos getcomponent
             if (target == null) {
                 continue;
             }
@@ -71,4 +61,26 @@ public class CombatTargeting : MonoBehaviour
         return true;
 
     }
+
+    public void ValidateTarget()
+    {
+        if (currentTarget == null)
+        {
+            return;
+        }
+        float distance = Vector3.Distance(
+            transform.position,
+            currentTarget.transform.position
+            );
+        if (distance > targetRadius)
+        {
+            ClearTarget();
+        }
+    }
+    public void ClearTarget()
+    {
+        currentTarget = null;
+    }
+
+
 }
