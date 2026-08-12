@@ -15,6 +15,10 @@ public class PlayerAnimator : MonoBehaviour
             Animator.StringToHash("Sheathe");
     private static readonly int AttackAfterUnsheatheHash =
             Animator.StringToHash("AttackAfterUnsheathe");
+    private static readonly int CombatMoveXHash = Animator.StringToHash("CombatMoveX");
+    private static readonly int CombatMoveYHash = Animator.StringToHash("CombatMoveY");
+    private static readonly int IsCombatHash = Animator.StringToHash("IsCombat");
+
 
     public void SetMovementSpeed(float normalizedSpeed)
     {
@@ -30,7 +34,6 @@ public class PlayerAnimator : MonoBehaviour
     }
     public void PlayUnsheathe(bool value)
     {
-        Debug.Log("PlayUnsheathe()");
         SetAttackAfterUnsheathe(value);
         animator.SetTrigger(UnsheatheTriggerHash);
     }
@@ -43,5 +46,26 @@ public class PlayerAnimator : MonoBehaviour
     public void SetAttackAfterUnsheathe(bool value)
     {
         animator.SetBool(AttackAfterUnsheatheHash, value);
+    }
+
+    public void SetCombatMovement (Vector2 combatMovement)
+    {
+        animator.SetFloat(
+            CombatMoveXHash,
+            combatMovement.x,
+            0.1f,
+            Time.deltaTime
+            );
+
+        animator.SetFloat(
+            CombatMoveYHash,
+            combatMovement.y,
+            0.1f,
+            Time.deltaTime
+            );
+    }
+    public void SetCombat(bool value)
+    {
+        animator.SetBool(IsCombatHash, value); 
     }
 }

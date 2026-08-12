@@ -4,6 +4,7 @@ using UnityEngine;
 public class CombatTargeting : MonoBehaviour
 {
     private CombatTarget currentTarget;
+    private PlayerAnimator playerAnimator;
     public CombatTarget CurrentTarget => currentTarget;
   
     [SerializeField]
@@ -12,12 +13,17 @@ public class CombatTargeting : MonoBehaviour
 
     [SerializeField]
     private LayerMask targetLayer;
-  
+
+    private void Awake()
+    {
+        playerAnimator = GetComponent<PlayerAnimator>();
+    }
+
     private void Update()
     {
         ValidateTarget();
     }
-    public bool TryTargetNearestEnemy()
+    public bool TryTargetNearestEnemy(CombatTarget excludedTarget = null)
     {
         CombatTarget target;
         float closestDistance = targetRadius;
@@ -39,7 +45,7 @@ public class CombatTargeting : MonoBehaviour
         foreach(Collider collider in colliders)
         {
             target = collider.GetComponentInParent<CombatTarget>(); // collider es un objeto de unity entonces usamos getcomponent
-            if (target == null) {
+            if (target == null || target == excludedTarget) {
                 continue;
             }
          
@@ -75,6 +81,7 @@ public class CombatTargeting : MonoBehaviour
         if (distance > targetRadius)
         {
             ClearTarget();
+            playerAnimator.SetCombat(false);
         }
     }
     public void ClearTarget()

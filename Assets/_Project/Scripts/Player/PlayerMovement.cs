@@ -1,12 +1,15 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal.Internal;
 
 public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity engine player movement hereda de monobehaviour
 {
     [SerializeField]
-    private float walkSpeed = 3f;
+    private float walkSpeed = 4f;
     [SerializeField]
-    private float runSpeed = 6f;
+    private float runSpeed = 8f;
+    [SerializeField]
+    private float combatMoveSpeed = 2.5f; 
 
     private float currentSpeed;
 
@@ -32,7 +35,7 @@ public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity e
         playerAnimator = GetComponent<PlayerAnimator>();
         playerInputHandler = GetComponent<PlayerInputHandler>();
         combatTargeting = GetComponent<CombatTargeting>();
-        
+       
     }
 
     // Update is called once per frame
@@ -51,29 +54,24 @@ public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity e
     {
         movementInput = playerInputHandler.MoveInput;
         isRunning = playerInputHandler.RunPressed;
-        Vector3 forward ;
-        Vector3 right ;
-        if (combatTargeting.CurrentTarget != null)
-        {
-            forward = transform.forward;
-            right = transform.right;
-        }
-        else
-        {
-            forward = cameraTransform.forward;
-            right = cameraTransform.right;
-        }
 
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
 
         forward.y = 0f;
-        forward.Normalize();
-
         right.y = 0f;
+
+        forward.Normalize();
         right.Normalize();
+                
+        moveDirection = (forward * movementInput.y + right * movementInput.x).normalized;
 
         if (MoveDirection == Vector3.zero)
         {
             currentSpeed = 0f;
+        }
+        else if(combatTargeting.CurrentTarget != null){
+            currentSpeed = combatMoveSpeed;
         }
         else if ( isRunning)
         {
@@ -83,8 +81,6 @@ public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity e
         {
             currentSpeed = walkSpeed;
         }
-
-        moveDirection = (forward * movementInput.y + right * movementInput.x).normalized;
    
     }
     private void Rotate()
@@ -135,5 +131,17 @@ public class PlayerMovement : MonoBehaviour //monobehaviour pertenece al unity e
     private void UpdateAnimation()
     {
         playerAnimator.SetMovementSpeed(GetNormalizedMovementSpeed());
+       
+        if(combatTargeting.CurrentTarget != null)
+        {
+            Vector3 localMovement = transform.InverseTransformDirection(moveDirection);
+            Debug.Log(
+                $"Combat X: {localMovement.x} | Combat Y: {localMovement.z}"
+            );
+            
+            playerAnimator.SetCombatMovement(
+                new Vector2(localMovement.x, localMovement.z)
+                );
+        }
     }
 }
